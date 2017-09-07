@@ -1,0 +1,168 @@
+Part B: Mini project
+--------------------
+• For any problem selected, write the ER Diagram, apply ER-mapping rules,
+normalize the relations, and follow the application development process.
+• Make sure that the application should have five or more tables, at least one
+trigger and one stored procedure, using suitable frontend tool.
+• Indicative areas include; health care, education, industry, transport, supply chain,
+etc. 
+
+Steps
+-----
+
+1. create database pesit;
+
+2. create table pesit.book (book_id int primary key,title varchar(200), publish_year int, publisher_name varchar(200));
+   insert into pesit.book values ('1','DBMS','2017','Pearson');
+   insert into pesit.book values ('2','DS','2015','TMH');
+   insert into pesit.book values ('3','DM','2012','TMH');
+   insert into pesit.book values ('4','DAA','2017','Pearson');
+   insert into pesit.book values ('5','OS','2017','GK');
+
+3. create table pesit.book_authors (book_id int references book(book_id), author_name varchar(200));
+   insert into pesit.book_authors values ('1','Navathe');
+   insert into pesit.book_authors values ('2','Teninbaum');
+   insert into pesit.book_authors values ('3','Galvin');
+   insert into pesit.book_authors values ('4','Navathe');
+   insert into pesit.book_authors values ('5','Kurose');
+
+4. create table pesit.publisher(name varchar(200) primary key, phone_number int, address varchar(255));
+   insert into pesit.publisher values ('Pearson','1234','Bangalore');
+   insert into pesit.publisher values ('TMH','4567','Delhi');
+   insert into pesit.publisher values ('Orielly','8901','Hyderabad');
+   insert into pesit.publisher values ('EEE','4321','Chennai');
+   insert into pesit.publisher values ('GK','1098','Kolkata');
+
+5. create table pesit.library_branch(branch_id int primary key,address varchar(255), branch_name varchar(200));
+   insert into pesit.library_branch values('11','E-City','Bangalore-south');
+   insert into pesit.library_branch values('22','Gandhinagar','Bangalore-north');
+   insert into pesit.library_branch values('33','Basavanagudi','Bangalore-west');
+   insert into pesit.library_branch values('44','Malleswaram','Bangalore-east');
+   insert into pesit.library_branch values('55','Banashankari','Bangalore');
+
+6. create table pesit.book_copies (book_id int references book(book_id), branch_id int references library_branch(branch_id), no_of_copies int);
+   insert into pesit.book_copies values('1','11','10');
+   insert into pesit.book_copies values('2','22','20');
+   insert into pesit.book_copies values('3','11','15');
+   insert into pesit.book_copies values('1','33','18');
+   insert into pesit.book_copies values('4','44','12');
+   insert into pesit.book_copies values('5','55','25');
+   insert into pesit.book_copies values('3','44','30');
+
+7. create table pesit.students (usn int primary key, name varchar(200), branch varchar(100), semester int);
+   insert into pesit.students values('024','ABC','ISE','5');
+   insert into pesit.students values('025','DEF','CSE','3');
+   insert into pesit.students values('026','GHI','ISE','5');
+   insert into pesit.students values('027','JKL','CSE','1');
+   insert into pesit.students values('028','MNO','ECE','5');
+   insert into pesit.students values('029','PQR','EEE','7');   
+
+8. create table pesit.book_lending (book_id int references book(book_id), branch_id int references library_branch(branch_id), usn int references students(usn), date_out date, due_date date);
+   insert into pesit.book_lending values ('1','11','024','2017-01-01','2017-01-15');
+   insert into pesit.book_lending values ('2','33','025','2017-01-15','2017-01-30');
+   insert into pesit.book_lending values ('1','22','026','2017-01-01','2017-01-15');
+   insert into pesit.book_lending values ('3','33','027','2017-02-01','2017-02-15');
+   insert into pesit.book_lending values ('4','55','028','2017-01-14','2017-01-29');
+   insert into pesit.book_lending values ('3','22','029','2017-01-11','2017-01-26');
+   insert into pesit.book_lending values ('4','44','024','2017-02-01','2017-02-15');
+   insert into pesit.book_lending values ('2','33','029','2017-04-16','2017-04-30');
+   insert into pesit.book_lending values ('4','22','028','2017-05-01','2017-05-15');
+
+Queries
+--------
+
+
+mysql> select book_id, (branch_id - book_id) from book_lending;
++---------+-----------------------+
+| book_id | (branch_id - book_id) |
++---------+-----------------------+
+|       1 |                    10 |
+|       2 |                    31 |
+|       1 |                    21 |
+|       3 |                    30 |
+|       4 |                    51 |
+|       3 |                    19 |
+|       4 |                    40 |
+|       2 |                    31 |
+|       4 |                    18 |
++---------+-----------------------+
+9 rows in set (0.00 sec)
+
+mysql> select book_id, (due_date - date_out) from book_lending;
++---------+-----------------------+
+| book_id | (due_date - date_out) |
++---------+-----------------------+
+|       1 |                    14 |
+|       2 |                    15 |
+|       1 |                    14 |
+|       3 |                    85 |
+|       4 |                    15 |
+|       3 |                    15 |
+|       4 |                    14 |
+|       2 |                    14 |
+|       4 |                    14 |
++---------+-----------------------+
+9 rows in set (0.00 sec)
+
+mysql> select book_id, (due_date - date_out) from book_lending;
++---------+-----------------------+
+| book_id | (due_date - date_out) |
++---------+-----------------------+
+|       1 |                    14 |
+|       2 |                    15 |
+|       1 |                    14 |
+|       3 |                    85 |
+|       4 |                    15 |
+|       3 |                    15 |
+|       4 |                    14 |
+|       2 |                    14 |
+|       4 |                    14 |
++---------+-----------------------+
+9 rows in set (0.00 sec)
+
+mysql> select book_id,avg(book_id) from book_lending group by book_id;
++---------+--------------+
+| book_id | avg(book_id) |
++---------+--------------+
+|       1 |       1.0000 |
+|       2 |       2.0000 |
+|       3 |       3.0000 |
+|       4 |       4.0000 |
++---------+--------------+
+4 rows in set (0.00 sec)
+
+mysql> select book_id,avg(due_date - date_out) from book_lending group by book_id;
++---------+--------------------------+
+| book_id | avg(due_date - date_out) |
++---------+--------------------------+
+|       1 |                  14.0000 |
+|       2 |                  14.5000 |
+|       3 |                  50.0000 |
+|       4 |                  14.3333 |
++---------+--------------------------+
+4 rows in set (0.00 sec)
+
+
+Queries
+-------
+
+select book_id as BOOK_ID, count(book_id) as N, avg(due_date - date_out)/count(book_id) as ALPHA from book_lending group by book_id;
+
+select book_id as BOOK_ID,(due_date - date_out) as DAYS from book_lending;
+
+Views
+-----
+
+drop view Q1
+drop view Q2
+drop view Q3
+drop view Q4
+drop view Q5
+drop view Q6
+create view Q1 as select book_id as BOOK_ID, count(book_id) as N, avg(due_date - date_out)/count(book_id) as ALPHA from book_lending group by book_id;
+create view Q2 as select book_id as BOOK_ID,(due_date - date_out) as DAYS from book_lending;
+create view Q3 as select Q2.BOOK_ID,Q1.N as N,ALPHA,DAYS from Q1 JOIN Q2 ON Q1.BOOK_ID = Q2.BOOK_ID;
+create view Q4 as select BOOK_ID,ALPHA,SQRT((POWER((DAYS-ALPHA),2))/N) as S,N from Q3;
+create view Q5 as select BOOK_ID, (ALPHA + (2*avg(S))) as N95 from Q4 group by BOOK_ID;
+create view Q6 as select BOOK_ID, ((N*N95)/120) as N_BOOKS from Q5;
+select * from Q6 INTO OUTFILE 'file.csv' FIELDS TERMINATED BY ','

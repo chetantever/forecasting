@@ -1,0 +1,17 @@
+use pesit;
+drop view if exists Q1;
+drop view if exists Q2;
+drop view if exists Q3;
+drop view if exists Q4;
+drop view if exists Q5;
+drop view if exists Q6;
+drop view if exists Q7;
+drop view if exists Q8;
+create view Q1 as select book_id as BOOK_ID, count(book_id) as N, avg(due_date - date_out)/count(book_id) as ALPHA from book_lending group by book_id;
+create view Q2 as select book_id as BOOK_ID,(due_date - date_out) as DAYS from book_lending;
+create view Q3 as select Q2.BOOK_ID,Q1.N as N,ALPHA,DAYS from Q1 JOIN Q2 ON Q1.BOOK_ID = Q2.BOOK_ID;
+create view Q4 as select BOOK_ID,ALPHA,SQRT((POWER((DAYS-ALPHA),2))/N) as S,N from Q3;
+create view Q5 as select BOOK_ID, (ALPHA + (2*avg(S))) as N95,N from Q4 group by BOOK_ID;
+create view Q6 as select BOOK_ID, ((N*N95)/120) as N_BOOKS from Q5;
+create view Q7 as select book_id as BOOK_ID,sum(no_of_copies) as NO_OF_COPIES from book_copies group by book_id;
+create view Q8 as select q6.BOOK_ID,q6.N_BOOKS,q7.NO_OF_COPIES as TOTAL_EXISTING,CEIL(q7.NO_OF_COPIES * q6.N_BOOKS) as TOTAL_REQUIRED from q6,q7 where q6.BOOK_ID=q7.BOOK_ID;

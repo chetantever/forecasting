@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PESIT</title>
+  <link rel="stylesheet" href="resources/jquery-ui.css">
+  <script src="resources/jquery-1.12.4.js"></script>
+  <script src="resources/jquery-ui.js"></script>
+  <script>
+  $( function() {
+    $("#fromdate").datepicker();
+    $("#todate").datepicker();
+  } );
+  </script>
+</head>
+<body>
+
+<h2>Library Inventory Forecasting</h2>
+
+<form method="post" action="db.php">
+  <p>Form Date: <input type="text" id="fromdate" name="fromdate"</p>
+  <p>To Date: <input type="text" id="todate" name="todate"></p> 
+  <br/><br/>
+  <input type="submit" name="submit" value="Run Report">
+</form>
+
+</body>
+</html>
